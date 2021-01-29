@@ -290,6 +290,14 @@ int main(int argc, char* argv[]) {
     ntinst.StartClientTeam(team);
   }
 
+  //Create the tables
+  auto table = ntinst.GetTable("visionTable");
+  auto cellRunnerEntry = table->GetEntry("CellVisionRunner");
+  auto cellLateralTranslationEntry = table->GetEntry("CellVisionLateralTranslation");
+  auto cellLongitudinalTranslationEntry = table->GetEntry("CellVisionLongitundinalTranslation");
+  // table->PutNumber("CellVisionRunner", 123);
+
+
   // start cameras
   for (const auto& config : cameraConfigs)
     cameras.emplace_back(StartCamera(config));
