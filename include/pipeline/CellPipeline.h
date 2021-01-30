@@ -25,11 +25,12 @@ class CellPipeline : public frc::VisionPipeline  {
     Mat hsv_image;
 
     Mat drawnFrame;
-    void processThreshold(Mat source0)
+
+    void Process(cv::Mat& mat) override
     {
 
         // Step 1: HSV Thresholding
-        Mat hsvThresholdInput = source0;
+        Mat hsvThresholdInput = mat;
 
         //Convert RGB image into HSV image
         cvtColor(hsvThresholdInput, hsv_image, COLOR_BGR2HSV);
