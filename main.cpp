@@ -14,6 +14,7 @@
 #include <wpi/json.h>
 #include <wpi/raw_istream.h>
 #include <wpi/raw_ostream.h>
+#include <pipeline/CellPipeline.h>
 
 #include "cameraserver/CameraServer.h"
 
@@ -274,6 +275,8 @@ class MyPipeline : public frc::VisionPipeline {
 };
 }  // namespace
 
+CellPipeline cellObj;
+
 int main(int argc, char* argv[]) {
   if (argc >= 2) configFile = argv[1];
 
@@ -321,6 +324,8 @@ int main(int argc, char* argv[]) {
         ...
       });
        */
+      cellObj->CellPipeline::processThreshold(cameras[0]);
+
       runner.RunForever();
     }).detach();
   }
