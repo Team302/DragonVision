@@ -292,10 +292,10 @@ int main(int argc, char* argv[]) {
   }
 
   //Create the tables
-  auto table = ntinst.GetTable("visionTable");
-  auto cellRunnerEntry = table->GetEntry("CellVisionRunner");
-  auto cellLateralTranslationEntry = table->GetEntry("CellVisionLateralTranslation");
-  auto cellLongitudinalTranslationEntry = table->GetEntry("CellVisionLongitundinalTranslation");
+  // auto table = ntinst.GetTable("visionTable");
+  // auto cellRunnerEntry = table->GetEntry("CellVisionRunner");
+  // auto cellLateralTranslationEntry = table->GetEntry("CellVisionLateralTranslation");
+  // auto cellLongitudinalTranslationEntry = table->GetEntry("CellVisionLongitundinalTranslation");
   // table->PutNumber("CellVisionRunner", 123);
 
 
@@ -309,11 +309,9 @@ int main(int argc, char* argv[]) {
   // start image processing on camera 0 if present
   if (cameras.size() >= 1) {
     std::thread([&] {
-      frc::VisionRunner<MyPipeline> runner(cameras[0], new MyPipeline(),
-                                           [&](MyPipeline &pipeline) {
+      frc::VisionRunner<CellPipeline> runner(cameras[0], new CellPipeline(),
+                                           [&](CellPipeline &pipeline) {
         // do something with pipeline results
-        // cv:cvCvtColor( pipeline, pipeline, CV_BGR2GRAY);
-        // pipeline.Process(cameras[0]);
         
       });
       /* something like this for GRIP:
