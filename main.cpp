@@ -310,7 +310,7 @@ int main(int argc, char* argv[]) {
   if (cameras.size() >= 1) {
     std::thread([&] {
       frc::VisionRunner<CellPipeline> runner(cameras[0], new CellPipeline(),
-                                           [&](CellPipeline &pipeline) {
+                                           [&](CellPipeline& pipeline) {
         // do something with pipeline results
         
       });

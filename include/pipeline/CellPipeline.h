@@ -26,11 +26,7 @@ class CellPipeline : public frc::VisionPipeline  {
 
     Mat drawnFrame;
 
-    void Process(cv::Mat& mat) override
-    {
-
-
-    };
+    void Process(cv::Mat& mat) override;
 
     ~CellPipeline();
     private:
