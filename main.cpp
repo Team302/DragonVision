@@ -269,32 +269,29 @@ cs::MjpegServer StartSwitchedCamera(const SwitchedCameraConfig& config) {
   return server;
 }
 
-// example pipeline
-class CellPipeline : public frc::VisionPipeline {
- public:
-  int val = 0;
+// cell pipeline
+class CellPipeline : public frc::VisionPipeline 
+{
+  public:
+      int val = 0;
 
-  void Process(cv::Mat& mat) override {
-    cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Processed", 160, 120);
-    // Step 1: HSV Thresholding
-    cv::Mat hsvThresholdInput = mat;
-    cv::Mat hsv_image;
-    cv::Mat hsvThresholdOutput;
-    //Convert RGB image into HSV image
-    cvtColor(hsvThresholdInput, hsv_image, cv::COLOR_BGR2HSV);
+      void Process(cv::Mat& mat) override 
+      {
+          cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Processed", 160, 120);
+          // Step 1: HSV Thresholding
+          cv::Mat hsvThresholdInput = mat;
+          cv::Mat hsv_image;
+          cv::Mat hsvThresholdOutput;
+          //Convert RGB image into HSV image
+          cvtColor(hsvThresholdInput, hsv_image, cv::COLOR_BGR2HSV);
 
-    //Threshold image into binary image
-    //TODO:implement a way to change HSV values on the fly through network tables
-    cv::Mat binary_img;
+          //Threshold image into binary image
+          //TODO:implement a way to change HSV values on the fly through network tables
+          cv::Mat binary_img;
 
-    inRange(hsv_image, cv::Scalar(8.093525179856115, 94.01978417266191, 0.0), cv::Scalar(34.09556313993174, 255.0, 255.0), hsvThresholdOutput);
-    outputStream.PutFrame(hsvThresholdOutput);
-    /**
-    ++val;
-    // cv::cvtColor(mat,mat, cv::COLOR_YUV2BGR_NV21);
-    // mat = mat / 20;
-    **/
-  }
+          inRange(hsv_image, cv::Scalar(8.093525179856115, 94.01978417266191, 0.0), cv::Scalar(34.09556313993174, 255.0, 255.0), hsvThresholdOutput);
+          outputStream.PutFrame(hsvThresholdOutput);
+      }
 };
 }  // namespace
 
