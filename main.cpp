@@ -341,7 +341,7 @@ int main(int argc, char* argv[]) {
         ...
       });
        */
-      
+      runner.RunOnce();
 
       runner.RunForever();
     }).detach();
