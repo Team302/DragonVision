@@ -6,6 +6,9 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <memory>
+
+#include <opencv2/opencv.hpp>
 
 #include <networktables/NetworkTableInstance.h>
 #include <vision/VisionPipeline.h>
@@ -14,11 +17,15 @@
 #include <wpi/json.h>
 #include <wpi/raw_istream.h>
 #include <wpi/raw_ostream.h>
-#include <pipeline/CellPipeline.h>
+//#include <pipeline/CellPipeline.h>
 
 #include "cameraserver/CameraServer.h"
 
 #include <opencv/cv.hpp>
+
+
+
+
 
 /*
    JSON format:
@@ -263,14 +270,30 @@ cs::MjpegServer StartSwitchedCamera(const SwitchedCameraConfig& config) {
 }
 
 // example pipeline
-class MyPipeline : public frc::VisionPipeline {
+class CellPipeline : public frc::VisionPipeline {
  public:
   int val = 0;
 
   void Process(cv::Mat& mat) override {
+    cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Processed", 160, 120);
+    // Step 1: HSV Thresholding
+    cv::Mat hsvThresholdInput = mat;
+    cv::Mat hsv_image;
+    cv::Mat hsvThresholdOutput;
+    //Convert RGB image into HSV image
+    cvtColor(hsvThresholdInput, hsv_image, cv::COLOR_BGR2HSV);
+
+    //Threshold image into binary image
+    //TODO:implement a way to change HSV values on the fly through network tables
+    cv::Mat binary_img;
+
+    inRange(hsv_image, cv::Scalar(8.093525179856115, 94.01978417266191, 0.0), cv::Scalar(34.09556313993174, 255.0, 255.0), hsvThresholdOutput);
+    outputStream.PutFrame(hsvThresholdOutput);
+    /**
     ++val;
     // cv::cvtColor(mat,mat, cv::COLOR_YUV2BGR_NV21);
     // mat = mat / 20;
+    **/
   }
 };
 }  // namespace
@@ -306,6 +329,7 @@ int main(int argc, char* argv[]) {
   // start switched cameras
   for (const auto& config : switchedCameraConfigs) StartSwitchedCamera(config);
 
+
   // start image processing on camera 0 if present
   if (cameras.size() >= 1) {
     std::thread([&] {
@@ -315,7 +339,7 @@ int main(int argc, char* argv[]) {
         
       });
       /* something like this for GRIP:
-      frc::VisionRunner<MyPipeline> runner(cameras[0], new grip::GripPipeline(),
+      frc::VisionRunner<CellPipeline> runner(cameras[0], new grip::GripPipeline(),
                                            [&](grip::GripPipeline& pipeline) {
         ...
       });
