@@ -274,10 +274,10 @@ class CellPipeline : public frc::VisionPipeline
 {
   public:
       int val = 0;
-
+      cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Processed", 160, 120);
       void Process(cv::Mat& mat) override 
       {
-          cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Processed", 160, 120);
+          
           // Step 1: HSV Thresholding
           cv::Mat hsvThresholdInput = mat;
           cv::Mat hsv_image;
