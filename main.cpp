@@ -23,6 +23,7 @@
 
 #include <opencv/cv.hpp>
 
+using namespace cv;
 
 
 
@@ -275,22 +276,35 @@ class CellPipeline : public frc::VisionPipeline
   public:
       int val = 0;
       cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Processed", 160, 120);
-      void Process(cv::Mat& mat) override 
+      void Process(Mat& mat) override 
       {
           
           // Step 1: HSV Thresholding
-          cv::Mat hsvThresholdInput = mat;
-          cv::Mat hsv_image;
-          cv::Mat hsvThresholdOutput;
+          Mat hsvThresholdInput = mat;
+          Mat hsv_image;
+          Mat hsvThresholdOutput;
+          Mat blurOutput;
+          Mat findContoursOutput;
+          Mat openingOutput;
           //Convert RGB image into HSV image
           cvtColor(hsvThresholdInput, hsv_image, cv::COLOR_BGR2HSV);
 
+          //Blur Thresholded Image using median blur
+          medianBlur( hsv_image, blurOutput, 7);
+
           //Threshold image into binary image
           //TODO:implement a way to change HSV values on the fly through network tables
-          cv::Mat binary_img;
+          inRange(blurOutput, Scalar(8.093525179856115, 94.01978417266191, 0.0), Scalar(34.09556313993174, 255.0, 255.0), hsvThresholdOutput);
 
-          inRange(hsv_image, cv::Scalar(8.093525179856115, 94.01978417266191, 0.0), cv::Scalar(34.09556313993174, 255.0, 255.0), hsvThresholdOutput);
-          outputStream.PutFrame(hsvThresholdOutput);
+          morphologyEx(hsvThresholdOutput, openingOutput, MORPH_OPEN, 5);
+
+          // auto kernel = ;
+          
+          // Mat findContoursInput = hsvThresholdOutput;
+
+          // cv::findContours(openingOutput, findContoursOutput, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+
+          outputStream.PutFrame(openingOutput);
       }
 };
 }  // namespace

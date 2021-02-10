@@ -29,6 +29,4 @@ class CellPipeline : public frc::VisionPipeline  {
     void Process(cv::Mat& mat) override;
 
     ~CellPipeline();
-    private:
-    // Mat blurOutput;
 };
