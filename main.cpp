@@ -286,6 +286,8 @@ class CellPipeline : public frc::VisionPipeline
           Mat blurOutput;
           Mat findContoursOutput;
           Mat openingOutput;
+          Mat contourOutput;
+
           //Convert RGB image into HSV image
           cvtColor(hsvThresholdInput, hsv_image, cv::COLOR_BGR2HSV);
 
@@ -298,13 +300,12 @@ class CellPipeline : public frc::VisionPipeline
 
           morphologyEx(hsvThresholdOutput, openingOutput, MORPH_OPEN, 5);
 
-          // auto kernel = ;
-          
-          // Mat findContoursInput = hsvThresholdOutput;
+          std::vector<std::vector<cv::Point> > contours;
+          Scalar color(0, 0, 255);
 
-          // cv::findContours(openingOutput, findContoursOutput, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-
-          outputStream.PutFrame(openingOutput);
+          findContours(openingOutput, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+          drawContours(mat, contours, -1, color, 2, 8);
+          outputStream.PutFrame(mat);
       }
 };
 }  // namespace
@@ -326,11 +327,11 @@ int main(int argc, char* argv[]) {
   }
 
   //Create the tables
-  // auto table = ntinst.GetTable("visionTable");
-  // auto cellRunnerEntry = table->GetEntry("CellVisionRunner");
-  // auto cellLateralTranslationEntry = table->GetEntry("CellVisionLateralTranslation");
-  // auto cellLongitudinalTranslationEntry = table->GetEntry("CellVisionLongitundinalTranslation");
-  // table->PutNumber("CellVisionRunner", 123);
+  auto table = ntinst.GetTable("visionTable");
+  auto cellRunnerEntry = table->GetEntry("CellVisionRunner");
+  auto cellLateralTranslationEntry = table->GetEntry("CellVisionLateralTranslation");
+  auto cellLongitudinalTranslationEntry = table->GetEntry("CellVisionLongitundinalTranslation");
+  table->PutNumber("CellVisionRunner", 123);
 
 
   // start cameras
