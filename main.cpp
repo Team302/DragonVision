@@ -275,38 +275,44 @@ class CellPipeline : public frc::VisionPipeline
 {
   public:
       int val = 0;
-      cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Processed", 160, 120);
-      void Process(Mat& mat) override 
+      cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Processed", 160, 120);  
+      void Process(Mat& mat) override
       {
           
-          // Step 1: HSV Thresholding
-          Mat hsvThresholdInput = mat;
-          Mat hsv_image;
-          Mat hsvThresholdOutput;
-          Mat blurOutput;
-          Mat findContoursOutput;
-          Mat openingOutput;
-          Mat contourOutput;
+          // Grab RGB camera feed
+          hsvThresholdInput = mat;
 
           //Convert RGB image into HSV image
           cvtColor(hsvThresholdInput, hsv_image, cv::COLOR_BGR2HSV);
 
-          //Blur Thresholded Image using median blur
+          //Blur HSV Image using median blur
           medianBlur( hsv_image, blurOutput, 7);
 
-          //Threshold image into binary image
+          //Threshold HSV image into binary image
           //TODO:implement a way to change HSV values on the fly through network tables
           inRange(blurOutput, Scalar(8.093525179856115, 94.01978417266191, 0.0), Scalar(34.09556313993174, 255.0, 255.0), hsvThresholdOutput);
 
+          //Use "Opening" operation to clean up binary img
           morphologyEx(hsvThresholdOutput, openingOutput, MORPH_OPEN, 5);
 
+          //create vector to store contours
           std::vector<std::vector<cv::Point> > contours;
           Scalar color(0, 0, 255);
 
+          //Find the contours, and draw them on video feed, to be sent to Driver Station
           findContours(openingOutput, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
           drawContours(mat, contours, -1, color, 2, 8);
           outputStream.PutFrame(mat);
+          
       }
+    private:
+    Mat hsvThresholdInput;
+    Mat hsv_image;
+    Mat hsvThresholdOutput;
+    Mat blurOutput;
+    Mat findContoursOutput;
+    Mat openingOutput;
+    Mat contourOutput;
 };
 }  // namespace
 
@@ -328,10 +334,13 @@ int main(int argc, char* argv[]) {
 
   //Create the tables
   auto table = ntinst.GetTable("visionTable");
-  auto cellRunnerEntry = table->GetEntry("CellVisionRunner");
-  auto cellLateralTranslationEntry = table->GetEntry("CellVisionLateralTranslation");
-  auto cellLongitudinalTranslationEntry = table->GetEntry("CellVisionLongitundinalTranslation");
-  table->PutNumber("CellVisionRunner", 123);
+  nt::NetworkTableEntry cellVisionAngleEntry = table->GetEntry("CellVisionAngle");
+  nt::NetworkTableEntry cellVisionDistanceEntry = table->GetEntry("CellVisionDistance");
+  // auto cellRunnerEntry = table->GetEntry("CellVisionRunner");
+  // auto cellLateralTranslationEntry = table->GetEntry("CellVisionLateralTranslation");
+  // auto cellLongitudinalTranslationEntry = table->GetEntry("CellVisionLongitundinalTranslation");
+
+  // table->PutNumber("CellVisionRunner", 123);
 
 
   // start cameras
