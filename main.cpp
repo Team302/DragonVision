@@ -280,8 +280,18 @@ class CellPipeline : public frc::VisionPipeline
       {
           
           // Grab RGB camera feed
-          hsvThresholdInput = mat;
+          //Modify Constrast and Brightness to reduce noise
+          hsvThresholdInput = Mat::zeros( mat.size(), mat.type() );
+          for( int y = 0; y < mat.rows; y++ ){
+            for( int x = 0; x < mat.cols; x++ ){
+              for( int c = 0; c < mat.channels(); c++ ){
+                hsvThresholdInput.at<Vec3b>(y,x)[c]=
+                  saturate_cast<uchar>(alpha*mat.at<Vec3b>(y,x)[c] + beta );
+              }
+            }
 
+          }
+          contourOutput = hsvThresholdInput;
           //Convert RGB image into HSV image
           cvtColor(hsvThresholdInput, hsv_image, cv::COLOR_BGR2HSV);
 
@@ -301,8 +311,8 @@ class CellPipeline : public frc::VisionPipeline
 
           //Find the contours, and draw them on video feed, to be sent to Driver Station
           findContours(openingOutput, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
-          drawContours(mat, contours, -1, color, 2, 8);
-          outputStream.PutFrame(mat);
+          drawContours(contourOutput, contours, -1, color, 2, 8);
+          outputStream.PutFrame(contourOutput);
           
       }
     private:
@@ -313,6 +323,8 @@ class CellPipeline : public frc::VisionPipeline
     Mat findContoursOutput;
     Mat openingOutput;
     Mat contourOutput;
+    double alpha = 1.0; //Contrast control value
+    int beta = -40; //Brightness control value
 };
 }  // namespace
 
@@ -340,7 +352,7 @@ int main(int argc, char* argv[]) {
   // auto cellLateralTranslationEntry = table->GetEntry("CellVisionLateralTranslation");
   // auto cellLongitudinalTranslationEntry = table->GetEntry("CellVisionLongitundinalTranslation");
 
-  // table->PutNumber("CellVisionRunner", 123);
+  //table->PutNumber("CellVisionRunner", 123);
 
 
   // start cameras
