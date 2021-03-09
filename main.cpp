@@ -281,16 +281,25 @@ class CellPipeline : public frc::VisionPipeline
           
           // Grab RGB camera feed
           //Modify Constrast and Brightness to reduce noise
-          hsvThresholdInput = Mat::zeros( mat.size(), mat.type() );
-          for( int y = 0; y < mat.rows; y++ ){
-            for( int x = 0; x < mat.cols; x++ ){
-              for( int c = 0; c < mat.channels(); c++ ){
-                hsvThresholdInput.at<Vec3b>(y,x)[c]=
-                  saturate_cast<uchar>(alpha*mat.at<Vec3b>(y,x)[c] + beta );
-              }
-            }
+          // hsvThresholdInput = Mat::zeros( mat.size(), mat.type() );
+          // for( int y = 0; y < mat.rows; y++ ){
+          //   for( int x = 0; x < mat.cols; x++ ){
+          //     for( int c = 0; c < mat.channels(); c++ ){
+          //       hsvThresholdInput.at<Vec3b>(y,x)[c]=
+          //         saturate_cast<uchar>(alpha*mat.at<Vec3b>(y,x)[c] + beta );
+          //     }
+          //   }
 
+          // }
+
+          //Gamma Correction of raw image feed
+          Mat lookUpTable(1, 256, CV_8U);
+          uchar * p = lookUpTable.ptr();
+          for( int i = 0; i <256; ++i){
+            p[i] = saturate_cast<uchar>(pow( i / 255.0, 1.5) * 255.0);
           }
+          LUT(mat, lookUpTable, hsvThresholdInput);
+
           contourOutput = hsvThresholdInput;
           //Convert RGB image into HSV image
           cvtColor(hsvThresholdInput, hsv_image, cv::COLOR_BGR2HSV);
