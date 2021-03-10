@@ -296,7 +296,7 @@ class CellPipeline : public frc::VisionPipeline
           Mat lookUpTable(1, 256, CV_8U);
           uchar * p = lookUpTable.ptr();
           for( int i = 0; i <256; ++i){
-            p[i] = saturate_cast<uchar>(pow( i / 255.0, 1.5) * 255.0);
+            p[i] = saturate_cast<uchar>(pow( i / 255.0, 2.25) * 255.0);
           }
           LUT(mat, lookUpTable, hsvThresholdInput);
 
