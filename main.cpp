@@ -270,6 +270,12 @@ cs::MjpegServer StartSwitchedCamera(const SwitchedCameraConfig& config) {
   return server;
 }
 
+auto cam = VideoCapture(0);
+Mat image;
+auto imageBool = cam.read(image);
+bool write = imwrite("cell.png", image);
+
+
 // cell pipeline
 class CellPipeline : public frc::VisionPipeline 
 {
@@ -316,10 +322,13 @@ class CellPipeline : public frc::VisionPipeline
 
           //create vector to store contours
           std::vector<std::vector<cv::Point> > contours;
-          Scalar color(0, 0, 255);
+          
+          //Use Douglas-Peucker algorithm to approximate a polygon
+          // approxPolyDP()
 
           //Find the contours, and draw them on video feed, to be sent to Driver Station
           findContours(openingOutput, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+          Scalar color(0, 0, 255);
           drawContours(contourOutput, contours, -1, color, 2, 8);
           outputStream.PutFrame(contourOutput);
           
