@@ -270,11 +270,6 @@ cs::MjpegServer StartSwitchedCamera(const SwitchedCameraConfig& config) {
   return server;
 }
 
-auto cam = VideoCapture(0);
-Mat image;
-auto imageBool = cam.read(image);
-bool write = imwrite("cell.png", image);
-
 
 // cell pipeline
 class CellPipeline : public frc::VisionPipeline 
@@ -284,7 +279,8 @@ class CellPipeline : public frc::VisionPipeline
       cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Processed", 160, 120);  
       void Process(Mat& mat) override
       {
-          
+        auto ntinst = nt::NetworkTableInstance::GetDefault();
+        auto table = ntinst.GetTable("visionTable");
           // Grab RGB camera feed
           //Modify Constrast and Brightness to reduce noise
           // hsvThresholdInput = Mat::zeros( mat.size(), mat.type() );
@@ -323,14 +319,50 @@ class CellPipeline : public frc::VisionPipeline
           //create vector to store contours
           std::vector<std::vector<cv::Point> > contours;
           
-          //Use Douglas-Peucker algorithm to approximate a polygon
-          // approxPolyDP()
+
 
           //Find the contours, and draw them on video feed, to be sent to Driver Station
           findContours(openingOutput, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
-          Scalar color(0, 0, 255);
-          drawContours(contourOutput, contours, -1, color, 2, 8);
-          outputStream.PutFrame(contourOutput);
+
+          std::vector<std::vector<cv::Point> > contours_poly( contours.size() );
+          std::vector<cv::Point2f>centers( contours.size() );
+          std::vector<float>radius( contours.size() );
+
+          for( size_t i = 0; i < contours.size(); i++ )
+          {
+            approxPolyDP( contours[i], contours_poly[i], 3, true);
+            minEnclosingCircle( contours_poly[i], centers[i], radius[i]);
+          }
+
+          Mat drawing = Mat::zeros(openingOutput.size(), CV_8UC3);
+
+          for( size_t i = 0; i < contours.size(); i++ )
+          {
+            Scalar color = Scalar( 0, 256, 0);
+            drawContours( drawing, contours_poly, (int)i, color);
+            circle( drawing, centers[i], (int)radius[i], color, 2);
+            // auto textSize = getTextSize("0", FONT_HERSHEY_DUPLEX, 1.5, 2, );
+            table->PutNumber("contourRadius0", radius[0]);
+          }
+
+          double largestRadius = 0;
+          int contourID;
+          
+          for( size_t i = 0; i < contours.size(); i++ )
+          {
+            if( radius[i] < 40 && radius[i] > 5 && radius[i] > largestRadius)
+            {
+              largestRadius = radius[i];
+              contourID = i;
+            }
+          }
+
+          double cellDistance = (7 * focalLength) / (2 * largestRadius);
+          table->PutNumber("nearestCellDistance", cellDistance); //distance in inches
+          table->PutNumber("largestRadius", largestRadius);
+          // Scalar color(0, 0, 255);
+          // drawContours(contourOutput, contours, -1, color, 2, 8);
+          outputStream.PutFrame(drawing);
           
       }
     private:
@@ -341,6 +373,7 @@ class CellPipeline : public frc::VisionPipeline
     Mat findContoursOutput;
     Mat openingOutput;
     Mat contourOutput;
+    int focalLength = 5;
     double alpha = 1.0; //Contrast control value
     int beta = -40; //Brightness control value
 };
@@ -363,9 +396,9 @@ int main(int argc, char* argv[]) {
   }
 
   //Create the tables
-  auto table = ntinst.GetTable("visionTable");
-  nt::NetworkTableEntry cellVisionAngleEntry = table->GetEntry("CellVisionAngle");
-  nt::NetworkTableEntry cellVisionDistanceEntry = table->GetEntry("CellVisionDistance");
+  
+  // nt::NetworkTableEntry cellVisionAngleEntry = table->GetEntry("CellVisionAngle");
+  // nt::NetworkTableEntry cellVisionDistanceEntry = table->GetEntry("CellVisionDistance");
   // auto cellRunnerEntry = table->GetEntry("CellVisionRunner");
   // auto cellLateralTranslationEntry = table->GetEntry("CellVisionLateralTranslation");
   // auto cellLongitudinalTranslationEntry = table->GetEntry("CellVisionLongitundinalTranslation");
