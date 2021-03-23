@@ -341,7 +341,8 @@ class CellPipeline : public frc::VisionPipeline
             Scalar color = Scalar( 0, 256, 0);
             drawContours( drawing, contours_poly, (int)i, color);
             circle( drawing, centers[i], (int)radius[i], color, 2);
-            // auto textSize = getTextSize("0", FONT_HERSHEY_DUPLEX, 1.5, 2, );
+            String radiusText = std::to_string(radius[i]); 
+            putText(drawing, radiusText, centers[i], CV_FONT_HERSHEY_DUPLEX, 1.5, color, 2, LINE_4, false);
             table->PutNumber("contourRadius0", radius[0]);
           }
 
