@@ -7,6 +7,7 @@
 #include <thread>
 #include <vector>
 #include <memory>
+#include <cmath>
 
 #include <opencv2/opencv.hpp>
 
@@ -342,23 +343,25 @@ class CellPipeline : public frc::VisionPipeline
             drawContours( drawing, contours_poly, (int)i, color);
             circle( drawing, centers[i], (int)radius[i], color, 2);
             String radiusText = std::to_string(radius[i]); 
-            putText(drawing, radiusText, centers[i], CV_FONT_HERSHEY_DUPLEX, 1.5, color, 2, LINE_4, false);
+            // putText(drawing, radiusText, centers[i], CV_FONT_HERSHEY_DUPLEX, 1.5, color, 2, LINE_4, false);
             table->PutNumber("contourRadius0", radius[0]);
           }
 
           double largestRadius = 0;
-          int contourID;
+          int largestContourID;
           
           for( size_t i = 0; i < contours.size(); i++ )
           {
             if( radius[i] < 40 && radius[i] > 5 && radius[i] > largestRadius)
             {
               largestRadius = radius[i];
-              contourID = i;
+              largestContourID = i;
             }
           }
 
           double cellDistance = (7 * focalLength) / (2 * largestRadius);
+
+          // double cellAngle = 
           table->PutNumber("nearestCellDistance", cellDistance); //distance in inches
           table->PutNumber("largestRadius", largestRadius);
           // Scalar color(0, 0, 255);
