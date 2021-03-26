@@ -356,6 +356,9 @@ class CellPipeline : public frc::VisionPipeline
             {
               largestRadius = radius[i];
               largestContourID = i;
+              contourID = i;
+              table->PutNumber("largestRadius", largestRadius);
+              table->PutNumber("contourID", contourID);
             }
           }
 
@@ -382,6 +385,7 @@ class CellPipeline : public frc::VisionPipeline
     int beta = -40; //Brightness control value
 };
 }  // namespace
+
 
 int main(int argc, char* argv[]) {
   if (argc >= 2) configFile = argv[1];
