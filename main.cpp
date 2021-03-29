@@ -277,7 +277,7 @@ namespace {
   {
     public:
         int val = 0;
-        cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Processed", 160, 120);  
+        cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Processed", 320, 240);  
         void Process(Mat& mat) override
         {
           auto ntinst = nt::NetworkTableInstance::GetDefault();
@@ -312,7 +312,7 @@ namespace {
 
             //Threshold HSV image into binary image
             //TODO:implement a way to change HSV values on the fly through network tables
-            inRange(blurOutput, Scalar(8.093525179856115, 94.01978417266191, 0.0), Scalar(34.09556313993174, 255.0, 255.0), hsvThresholdOutput);
+            inRange(blurOutput, Scalar(15.0, 100.0, 100.0), Scalar(35.0, 255.0, 255.0), hsvThresholdOutput);
 
             //Use "Opening" operation to clean up binary img
             morphologyEx(hsvThresholdOutput, openingOutput, MORPH_OPEN, 5);
@@ -343,7 +343,7 @@ namespace {
 
             for( size_t i = 0; i < contours.size(); i++ )
             {
-                if( radius[i] < 40.0 && radius[i] > 5.0 && radius[i] > largestRadius)
+                if( radius[i] < 12.0 && radius[i] > largestRadius)
                 {
                     Scalar color {0., 255., 0.};
                     drawContours( drawing, contours_poly, (int)i, color);
@@ -364,9 +364,9 @@ namespace {
 
             // Draw a filled circle at the center
             // NOTE:  May need to offset the origin to the middle of the screen so we can get positive and negative angles.
-            cv::Point2f middle { 0.0, 0.0 };
-            Scalar color {0., 0., 255.};
-            circle( drawing, middle, 5, color, FILLED, LINE_8);
+            cv::Point2f middle { 82.5, 0.0 };
+            // Scalar color {0., 0., 255.};
+            // circle( drawing, middle, 5, color, FILLED, LINE_8);
 
             //----------------------------------------------------------------------------------------------------------------------
             //
