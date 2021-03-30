@@ -379,7 +379,7 @@ namespace {
             //                | /
             //                |/  vertAngle
             //                +--------------
-            //                 middle (0.0)
+            //                 middle (82.5.0)
             //
             // Tangent is opposite over adjacent, so for the:
             //     horizontal angle is tan((x1 - x0) / (y1 - y0))
