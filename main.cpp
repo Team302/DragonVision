@@ -299,7 +299,7 @@ namespace {
             Mat lookUpTable(1, 256, CV_8U);
             uchar * p = lookUpTable.ptr();
             for( int i = 0; i <256; ++i){
-              p[i] = saturate_cast<uchar>(pow( i / 255.0, 2.25) * 255.0);
+              p[i] = saturate_cast<uchar>(pow( i / 255.0, 0.9) * 255.0);
             }
             LUT(mat, lookUpTable, hsvThresholdInput);
 
@@ -312,7 +312,7 @@ namespace {
 
             //Threshold HSV image into binary image
             //TODO:implement a way to change HSV values on the fly through network tables
-            inRange(blurOutput, Scalar(15.0, 100.0, 100.0), Scalar(35.0, 255.0, 255.0), hsvThresholdOutput);
+            inRange(blurOutput, Scalar(5.0, 125.0, 50.0), Scalar(50.0, 255.0, 255.0), hsvThresholdOutput);
 
             //Use "Opening" operation to clean up binary img
             morphologyEx(hsvThresholdOutput, openingOutput, MORPH_OPEN, 5);
@@ -343,7 +343,7 @@ namespace {
 
             for( size_t i = 0; i < contours.size(); i++ )
             {
-                if( radius[i] < 12.0 && radius[i] > largestRadius)
+                if( radius[i] < 30.0 && radius[i] > largestRadius)
                 {
                     Scalar color {0., 255., 0.};
                     drawContours( drawing, contours_poly, (int)i, color);
